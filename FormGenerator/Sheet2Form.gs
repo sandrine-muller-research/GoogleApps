@@ -8,10 +8,6 @@ function onOpen() {
 function main() {
 
   // get spreadsheet:
-  //var sheets = SpreadsheetApp.openById('1rfKUQryiVVWB3PrjaPR0bE9Mi7yNqKjecWtLe8Q645w').getSheets();
-  
-
-
   var sheets = SpreadsheetApp.getActiveSpreadsheet().getSheets();
   for (var i=0 ; i<sheets.length ; i++){
 
@@ -113,12 +109,6 @@ function create_form_object(form, casetype, title_str, choices, is_required) {
 
 function parse_sheet(sheet_name) {
 
-  //var sheet = SpreadsheetApp.openById('1rfKUQryiVVWB3PrjaPR0bE9Mi7yNqKjecWtLe8Q645w');
-
-  //var sheet_name = sheet.getSheetByName('Work-life')
-
-  //var sheet_name = sheet.getSheetByName(sheet_name)
-
   const [header, ...data] = sheet_name
     .getDataRange()
     .getDisplayValues();
@@ -145,7 +135,6 @@ function parse_sheet(sheet_name) {
   out.choices = choices;
   out.required = required.flat(1);
 
-  //debugger;
   return out;
   
 };
