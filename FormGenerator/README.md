@@ -13,6 +13,21 @@ To auto-generate your forms you will need:
     - answer start the first header containing choices
     - answer end: the last header containing choices (if multiple questions with different number of choices, _answer end_ is the header of the column that contains the maximum  number of questions 
     - Required: YES or NO/empty cell
+    - 
+## Current form types supported
+| Type label	| Description |
+| ------------- | ----------- |
+| SECTION	| add a section to a form. On preview, each section will be displayed at once on the webpage. You'll have to click "follwing" to move to the next section. |
+| TEXT | a character limited text box | 
+| PARAGRAPH | text box | 
+| RADIO | radio button type answer | 
+| SCALE | numerical scale | 
+| CHECKBOX | check box button (you can choose as much as you want) | 
+| MULTIPLE CHOICE | check box button (you can only choose one box) | 
+| DROP DOWN | drop-down menu | 
+| TEXT_BOUNDED | text field that is limited with a specific number | 
+| IMAGE | image import. Provide in the answer field the image Google Drive ID. | 
+
 
 ## Usage
 1) Go to _Tools_ > _Script Editor_ and add the _Sheet2Form.gs_ file. 
