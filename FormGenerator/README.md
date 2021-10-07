@@ -1,4 +1,4 @@
-# Form Generator
+# Sheet2Form
 
 ## What it does
 This app is creating a set of forms from normalized data in a google spreadsheet. The code will generate a form for each tab. Currently the forms are created in your Goggle Drive root. 
