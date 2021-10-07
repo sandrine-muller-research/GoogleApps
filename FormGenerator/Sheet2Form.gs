@@ -1,3 +1,18 @@
+/*====================================================================================================================================*
+  Sheet2Form by Sandrine Muller
+  ====================================================================================================================================
+  Version:      1.0.0
+  Project Page: https://github.com/sandrine-muller-research/GoogleApps/tree/main/FormGenerator
+  License:      MIT License
+  Doc:          https://github.com/sandrine-muller-research/GoogleApps/blob/main/FormGenerator/README.md
+  ------------------------------------------------------------------------------------------------------------------------------------
+  This Google App Script is creating a set of forms from normalized data in a google spreadsheet. The code will generate a form for each tab. 
+  
+  For bug reports see https://github.com/bradjasper/ImportJSON/issues
+  ------------------------------------------------------------------------------------------------------------------------------------
+*/
+
+
 function onOpen() {
   var ui = SpreadsheetApp.getUi();
   ui.createMenu('Sheet2Form')
@@ -9,9 +24,11 @@ function main() {
 
   // get spreadsheet:
   var sheets = SpreadsheetApp.getActiveSpreadsheet().getSheets();
-  for (var i=0 ; i<sheets.length ; i++){
 
-    var data = []; //question= [], required= [], choices = [], form_type = [];
+  var file_sheet_dest = DriveApp.getFileById(SpreadsheetApp.getActiveSpreadsheet().getId());
+  var folders_sheet_dest = file_sheet_dest.getParents().next();
+
+  for (var i=0 ; i<sheets.length ; i++){
 
     // get current sheet name:
     var form_title = sheets[i].getName()
@@ -21,15 +38,61 @@ function main() {
        .setTitle(form_title);
 
     // parse sheet
-    data = parse_sheet(sheets[i]);
+    var data = parse_sheet(sheets[i]);
 
     // populate form:
+    var qu=[], ans = [];
     for (var j=0 ; j<data.form_type.length ; j++){
-      form = create_form_object(form, data.form_type[j], data.question[j], data.choices[j], data.required[j])
+      if (data.form_type[j]=="GRID"){
+        // verify the list of choices is the same than previously:
+        if ( arr_equals(ans,data.choices[j]) && (ans.length != 0) ) {
+          // if ans is empty
+          qu.push(data.question[j]);
+        }else if (ans.length == 0){
+          ans = data.choices[j];
+          qu.push(data.question[j]);
+        }else{
+          form.addGridItem()
+            //.setTitle(title_str)
+              .setRows(qu)
+              .setColumns(ans);
+              //qu = [];
+              qu.push(data.question[j]);
+              ans = [];
+        }
+      }else{
+        if (ans.length != 0){// previous set of questions were GRID
+          form.addGridItem()
+              //.setTitle(title_str)
+              .setRows(qu)
+              .setColumns(ans);
+              qu = [];
+              ans = [];
+        }
+        form = create_form_object(form, data.form_type[j], data.question[j], data.choices[j], data.required[j]);
+      }
+      
     }
-    debugger;
+    var file_form_source = DriveApp.getFileById(form.getId());
+    var folders_form_source = file_form_source.getParents().next();
+    moveFiles(file_form_source,folders_form_source, folders_sheet_dest); 
+
   }
 };
+
+function arr_equals(arrA,arrB){
+  var out = true;
+  var difference = arrA.filter(x => !arrB.includes(x));
+  if ( (arrA.length==0) || (arrB.length==0) || (difference.length > 0)){
+    out = false;
+  }
+  return out;
+}
+
+function moveFiles(file,source_folder, dest_folder) {
+    dest_folder.addFile(file);
+    source_folder.removeFile(file);
+}
 
 function create_form_object(form, casetype, title_str, choices, is_required) {
 
@@ -55,7 +118,8 @@ function create_form_object(form, casetype, title_str, choices, is_required) {
     case 'SCALE':
       form.addScaleItem()
           .setTitle(title_str)
-          .setBounds(1, 5);
+          .setBounds(1,5)
+          .setLabels(choices[0], choices[1]);
       break;
 
     case 'PARAGRAPH':  
@@ -88,9 +152,10 @@ function create_form_object(form, casetype, title_str, choices, is_required) {
     case 'DROP DOWN': 
     // Open a form by ID and add a new list item.
       form.addListItem()
-          .setTitle('Do you prefer cats or dogs?')
+          .setTitle(title_str)
           .setChoices(choices)
           .setRequired(required);
+      break;
 
     case 'TEXT_BOUNDED':
     // Add a text item to a form and require it to be a number within a range -> lower and upper bound in choice vector
@@ -100,6 +165,15 @@ function create_form_object(form, casetype, title_str, choices, is_required) {
       form.addTextItem()
         .setTitle(title_str)
         .setValidation(textValidation);
+      break;
+
+    case 'IMAGE': 
+    // Open a form by ID and add a new list item.
+      var img = DriveApp.getFileById(choices[0]);
+      form.addImageItem()
+          .setTitle(title_str)
+          .setImage(img);
+      break;
 
     default:
         // ignore item
@@ -121,12 +195,12 @@ function parse_sheet(sheet_name) {
   var form_type = [];
   var out = {};
   header.forEach((title, i) => {
-    const d = data.map(row => row[i]);
+    var d = data.map(row => row[i]);
     if (title == 'Field/Question'){question.push(d)}
     if (title == 'Required'){required.push(d);}
-    if (title == 'Types'){form_type.push(d);} 
+    if (title == 'Type'){form_type.push(d);} 
   });
-  data.forEach((row,i) => {
+  data.forEach((row) => {
     choices.push(row.slice(answer_start, (answer_end+1)).filter(e => e!=""));
   });
 
