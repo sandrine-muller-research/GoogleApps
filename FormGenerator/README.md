@@ -30,7 +30,7 @@ To auto-generate your forms you will need:
 
 
 ## Usage
-1) Go to _Tools_ > _Script Editor_ and add the _Sheet2Form.gs_ file. 
+1) In your Google Sheet, go to _Tools_ > _Script Editor_ and add the _Sheet2Form.gs_ file. 
 2) Reload the google sheet page
 3) After a few second, you will see an additional tab called _Sheet2Form_ next to the _Help_ in your menu ribbon. 
 4) Go to _Sheet2Form_ > _Export to form_
