@@ -37,7 +37,7 @@ function main() {
     var form = FormApp.create(form_title)  
        .setTitle(form_title);
 
-    // parse sheet
+    // parse sheet:
     var data = parse_sheet(sheets[i]);
 
     // populate form:
@@ -46,24 +46,25 @@ function main() {
       if (data.form_type[j]=="GRID"){
         // verify the list of choices is the same than previously:
         if ( arr_equals(ans,data.choices[j]) && (ans.length != 0) ) {
-          // if ans is empty
+          // if ans is not empty
           qu.push(data.question[j]);
         }else if (ans.length == 0){
           ans = data.choices[j];
           qu.push(data.question[j]);
         }else{
           form.addGridItem()
-            //.setTitle(title_str)
               .setRows(qu)
               .setColumns(ans);
               //qu = [];
               qu.push(data.question[j]);
               ans = [];
+              if (j == (data.form_type.length-1)){ // if last question on the form -> submit
+                form = create_form_object(form, data.form_type[j], data.question[j], data.choices[j], data.required[j]);
+              }
         }
       }else{
         if (ans.length != 0){// previous set of questions were GRID
           form.addGridItem()
-              //.setTitle(title_str)
               .setRows(qu)
               .setColumns(ans);
               qu = [];
@@ -112,7 +113,6 @@ function create_form_object(form, casetype, title_str, choices, is_required) {
     case 'SECTION':
       form.addPageBreakItem()
         .setTitle(title_str)  
-        //.setRequired(is_required);
       break;
 
     case 'SCALE':
@@ -209,7 +209,10 @@ function parse_sheet(sheet_name) {
   out.choices = choices;
   out.required = required.flat(1);
 
+  //debugger;
   return out;
   
 };
+
+
 
