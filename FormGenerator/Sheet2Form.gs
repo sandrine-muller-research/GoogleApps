@@ -8,10 +8,9 @@
   ------------------------------------------------------------------------------------------------------------------------------------
   This Google App Script is creating a set of forms from normalized data in a google spreadsheet. The code will generate a form for each tab. 
   
-  For bug reports see https://github.com/bradjasper/ImportJSON/issues
+  For bug reports see https://github.com/sandrine-muller-research/GoogleApps/blob/main/FormGenerator/issues
   ------------------------------------------------------------------------------------------------------------------------------------
 */
-
 
 function onOpen() {
   var ui = SpreadsheetApp.getUi();
@@ -37,7 +36,7 @@ function main() {
     var form = FormApp.create(form_title)  
        .setTitle(form_title);
 
-    // parse sheet:
+    // parse sheet
     var data = parse_sheet(sheets[i]);
 
     // populate form:
@@ -55,20 +54,20 @@ function main() {
           form.addGridItem()
               .setRows(qu)
               .setColumns(ans);
-              //qu = [];
-              qu.push(data.question[j]);
-              ans = [];
-              if (j == (data.form_type.length-1)){ // if last question on the form -> submit
-                form = create_form_object(form, data.form_type[j], data.question[j], data.choices[j], data.required[j]);
-              }
+          qu = [];
+          qu.push(data.question[j]);
+          ans = data.choices[j];
+          if (j == (data.form_type.length-1)){ // if last question on the form -> submit
+            form = create_form_object(form, data.form_type[j], data.question[j], data.choices[j], data.required[j]);
+          }
         }
       }else{
         if (ans.length != 0){// previous set of questions were GRID
           form.addGridItem()
               .setRows(qu)
               .setColumns(ans);
-              qu = [];
-              ans = [];
+          qu = [];
+          ans = [];
         }
         form = create_form_object(form, data.form_type[j], data.question[j], data.choices[j], data.required[j]);
       }
@@ -113,6 +112,7 @@ function create_form_object(form, casetype, title_str, choices, is_required) {
     case 'SECTION':
       form.addPageBreakItem()
         .setTitle(title_str)  
+        //.setRequired(is_required);
       break;
 
     case 'SCALE':
@@ -149,12 +149,17 @@ function create_form_object(form, casetype, title_str, choices, is_required) {
           .setRequired(required);
       break;
 
-    case 'DROP DOWN': 
+    case 'DROPDOWN': 
+      var item = form.addListItem()
+      c = [];
+      for (var i=0 ; i<choices.length ; i++){
+        c.push(item.createChoice(choices[i]));
+      }
     // Open a form by ID and add a new list item.
-      form.addListItem()
-          .setTitle(title_str)
-          .setChoices(choices)
-          .setRequired(required);
+      item.setTitle(title_str)
+      item.setChoices(c)
+      item.setRequired(required);
+
       break;
 
     case 'TEXT_BOUNDED':
@@ -209,10 +214,6 @@ function parse_sheet(sheet_name) {
   out.choices = choices;
   out.required = required.flat(1);
 
-  //debugger;
   return out;
   
 };
-
-
-
