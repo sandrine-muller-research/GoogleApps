@@ -8,7 +8,7 @@
   ------------------------------------------------------------------------------------------------------------------------------------
   This Google App Script is creating a set of forms from normalized data in a google spreadsheet. The code will generate a form for each tab. 
   
-  For bug reports see https://github.com/sandrine-muller-research/GoogleApps/blob/main/FormGenerator/issues
+  For bug reports see https://github.com/sandrine-muller-research/GoogleApps/issues
   ------------------------------------------------------------------------------------------------------------------------------------
 */
 
